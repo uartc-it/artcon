@@ -13,6 +13,7 @@ public class gor_menu {
     @Test
     public void MenuTop() {
         driver = new FirefoxDriver();
+        driver.manage().window().maximize();
         driver.get("http://artc-it.net/");
         driver.findElement(By.linkText("About")).click();
         driver.findElement(By.linkText("Solutions")).click();

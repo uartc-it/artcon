@@ -13,6 +13,7 @@ public class send {
     @Test
     public void sends() {
         driver = new FirefoxDriver();
+        driver.manage().window().maximize();
         driver.get("http://artc-it.net/");
         driver.findElement(By.linkText("Contact us")).click();
         driver.findElement(By.xpath("//section[@id='contacts']/div[2]/form/div/label")).click();
