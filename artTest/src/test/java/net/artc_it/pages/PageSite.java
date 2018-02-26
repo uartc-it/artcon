@@ -74,8 +74,10 @@ public class PageSite {
         return resultMessage.getText();
     }
 
-    public WebElement getResultMessage() {
-        return resultMessage;
+    public boolean isPresentResultMessage() {
+        // пока не различиет, когда сообщение невидно !?
+        //ExpectedConditions.visibilityOf(page.getResultMessage())
+        return resultMessage.isDisplayed();
     }
 
     public void sendMessageForm(String name, String phone, String email, String message) {
