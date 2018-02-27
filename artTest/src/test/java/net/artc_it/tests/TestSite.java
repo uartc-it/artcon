@@ -17,18 +17,17 @@ public class TestSite {
         page = new PageSite(driver);
     }
 
-    @Ignore
     @Test
     public void testSendEmptyName() throws InterruptedException {
         page.sendMessageForm("", "999", "gh@fg.com", "qwerty");
-        Assert.assertFalse(page.isPresentResultMessage()); // пока не отрабатывает корректно!
+        Assert.assertFalse("Не должена появляться надпись об отправке сообщения!", page.isPresentResultMessage());
         // ещё проверить налоичие, привязку и текст всплывающего окна!
     }
 
     @Test
-    public void testSendMessage() {
+    public void testSendMessage() throws InterruptedException {
         page.sendMessageForm("tyty", "678", "gh@fg.com", "qwerty");
-        Assert.assertTrue(page.isPresentResultMessage());
+        Assert.assertTrue("Нет надписи об отправке сообщения!", page.isPresentResultMessage());
         Assert.assertEquals(page.getExpectedResultMessage(), page.getTextResultMessage());
     }
 

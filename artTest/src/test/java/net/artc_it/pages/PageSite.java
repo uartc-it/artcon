@@ -2,10 +2,10 @@ package net.artc_it.pages;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.How;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import java.util.concurrent.TimeUnit;
 
 public class PageSite {
 
@@ -16,13 +16,13 @@ public class PageSite {
         this.driver = driver;
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--start-maximized");
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.get(SITEURL);
     }
 
     public WebDriver driver;
 
-    //    @FindBy(id = "name")
-    @FindBy(how = How.ID, using = "name")
+    @FindBy(id = "name")
     private WebElement name;
 
     @FindBy(id = "tel")
@@ -34,13 +34,13 @@ public class PageSite {
     @FindBy(id = "msg")
     private WebElement message;
 
-    @FindBy(xpath = "//input[@value='Send']")
+    @FindBy(xpath = "id(\"contacts\")/div[2]/form[1]/input[1]")
     private WebElement sendButton;
 
-    @FindBy(how = How.XPATH, using = "id(\"contacts\")/div[2]/form[1]/span[1]")
+    @FindBy(xpath = "id(\"contacts\")/div[2]/form[1]/span[1]")
     private WebElement resultMessage;
 
-    @FindBy(how = How.XPATH, using = "id(\"main-nav\")/div[1]/a[2]")
+    @FindBy(xpath = "id(\"main-nav\")/div[1]/a[2]")
     private WebElement langEn;
 
     public void setName(String name) {
@@ -75,9 +75,7 @@ public class PageSite {
     }
 
     public boolean isPresentResultMessage() {
-        // пока не различиет, когда сообщение невидно !?
-        //ExpectedConditions.visibilityOf(page.getResultMessage())
-        return resultMessage.isDisplayed();
+        return resultMessage.getCssValue("overflow").equals("visible");
     }
 
     public void sendMessageForm(String name, String phone, String email, String message) {
