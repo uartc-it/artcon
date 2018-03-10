@@ -1,40 +1,30 @@
 package net.artc_it.tests;
 
-import net.artc_it.pages.PageSite;
-import org.junit.*;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-public class TestSite {
+public class TestSite extends BaseTestSite {
 
-    public static WebDriver driver;
-    public static PageSite page;
-
-    @BeforeClass
-    public static void setup() {
-        System.setProperty("webdriver.chrome.driver", "c:\\chromedriver.exe");
-        driver = new ChromeDriver();
-        page = new PageSite(driver);
+    @Test
+    public void testTimeForLoafPage() {
+        Assert.assertTrue(page.getTimeLoadPage() < 30000,
+                "Time for load page (" + page.getTimeLoadPage() / 1000 + " сек.) is too long!");
     }
 
     @Test
-    public void testSendEmptyName() throws InterruptedException {
-        page.sendMessageForm("", "999", "gh@fg.com", "qwerty");
-        Assert.assertFalse("Не должена появляться надпись об отправке сообщения!", page.isPresentResultMessage());
-        // ещё проверить налоичие, привязку и текст всплывающего окна!
+    public void testSendMessage() {
+        page.sendMessageForm("tyty", "+380956432133", "gh@fg.com", "qwertyВАРП! +-*345 ПЫВАПап");
+        Assert.assertEquals(page.getRealResultMessage(), page.getExpectedResultMessage());
     }
 
     @Test
-    public void testSendMessage() throws InterruptedException {
-        page.sendMessageForm("tyty", "678", "gh@fg.com", "qwerty");
-        Assert.assertTrue("Нет надписи об отправке сообщения!", page.isPresentResultMessage());
-        Assert.assertEquals(page.getExpectedResultMessage(), page.getTextResultMessage());
-    }
+    public void testSendEmptyName() {
+        page.sendMessageForm("", "+380664952327", "gh@fg.com", "аофыарфоллд.");
 
-    @AfterClass
-    public static void tearDown() {
-        driver.quit();
+        String validationMessage = page.getValidationMessage();
+        System.out.println("validationMessage = " + validationMessage);
+        Assert.assertFalse(validationMessage.isEmpty(), "No warning validation message about empty name!");
+
+        Assert.assertTrue(page.isHideResultMessage(), "Mistaken message about sending is present!");
     }
 }
-
-

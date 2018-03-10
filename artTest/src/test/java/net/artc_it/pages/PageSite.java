@@ -1,26 +1,37 @@
 package net.artc_it.pages;
 
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.util.concurrent.TimeUnit;
+
 
 public class PageSite {
 
-    final String SITEURL = "http://artc-it.net";
+    final String SITE_URL = "http://artc-it.net";
+
+    private long timeLoadPage;
+
+    public long getTimeLoadPage() {
+        return timeLoadPage;
+    }
+
+    public WebDriver driver;
 
     public PageSite(WebDriver driver) {
         PageFactory.initElements(driver, this);
         this.driver = driver;
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--start-maximized");
-        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-        driver.get(SITEURL);
-    }
+        driver.manage().timeouts().pageLoadTimeout(60, TimeUnit.SECONDS);
 
-    public WebDriver driver;
+        long startTime = System.currentTimeMillis();
+        driver.get(SITE_URL);
+        timeLoadPage = System.currentTimeMillis() - startTime;
+    }
 
     @FindBy(id = "name")
     private WebElement name;
@@ -44,18 +55,22 @@ public class PageSite {
     private WebElement langEn;
 
     public void setName(String name) {
+        this.name.clear();
         this.name.sendKeys(name);
     }
 
     public void setPhone(String phone) {
+        this.phone.clear();
         this.phone.sendKeys(phone);
     }
 
     public void setEmail(String email) {
+        this.email.clear();
         this.email.sendKeys(email);
     }
 
     public void setMessage(String message) {
+        this.message.clear();
         this.message.sendKeys(message);
     }
 
@@ -70,12 +85,27 @@ public class PageSite {
         else return "Сообщение отправлено";
     }
 
-    public String getTextResultMessage() {
-        return resultMessage.getText();
+    public String getRealResultMessage() {
+        System.out.println("resultMessage.overflow: " + resultMessage.getCssValue("overflow"));
+        try {
+            new WebDriverWait(driver, 2).until(Function -> {
+                return resultMessage.getCssValue("overflow").equals("visible");
+            });
+            return resultMessage.getText();
+        } catch (TimeoutException e) {
+            return "";
+        }
     }
 
-    public boolean isPresentResultMessage() {
-        return resultMessage.getCssValue("overflow").equals("visible");
+    public boolean isHideResultMessage() {
+        System.out.println("resultMessage.overflow: " + resultMessage.getCssValue("overflow"));
+        try {
+            return new WebDriverWait(driver, 2).until(Function -> {
+                return resultMessage.getCssValue("overflow").equals("hidden");
+            });
+        } catch (TimeoutException e) {
+            return false;
+        }
     }
 
     public void sendMessageForm(String name, String phone, String email, String message) {
@@ -85,6 +115,17 @@ public class PageSite {
         setMessage(message);
         clickSendButton();
     }
-}
 
+    public String getValidationMessage() {
+        if (isInputValid(name))
+            return "";
+        else
+            return name.getAttribute("validationMessage");
+    }
+
+    private Boolean isInputValid(WebElement element) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        return (Boolean) js.executeScript("return arguments[0].checkValidity()", element);
+    }
+}
 
